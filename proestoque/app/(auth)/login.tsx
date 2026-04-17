@@ -29,8 +29,9 @@ export default function LoginScreen() {
         <View style={styles.container}>
           <View style={styles.headerArea}>
             <LogoProEstoque size="lg" />
+            <Text style={styles.title}>Bem-vindo de volta</Text>
             <Text style={styles.subtitle}>
-              Seu estoque organizado, em qualquer lugar.
+              Acesse sua conta para continuar gerenciando o ProEstoque.
             </Text>
           </View>
 
@@ -69,7 +70,7 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.footerArea}>
-            <Text style={styles.footerText}>Ainda nao tem conta?</Text>
+            <Text style={styles.footerText}>Não tem conta?</Text>
             <Link href="/(auth)/cadastro" asChild>
               <Pressable>
                 <Text style={styles.link}>Criar conta</Text>
@@ -100,6 +101,12 @@ const styles = StyleSheet.create({
   headerArea: {
     gap: theme.spacing.md,
     alignItems: "center",
+  },
+  title: {
+    color: theme.colors.text,
+    fontSize: theme.typography.fontSize.xl,
+    fontWeight: theme.typography.fontWeight.bold,
+    textAlign: 'center',
   },
   subtitle: {
     color: theme.colors.textSecondary,

@@ -1,11 +1,8 @@
-import { StyleSheet, Text, View } from "react-native";
-
-import { theme } from "@/src/constants/theme";
+import { StyleSheet, View } from 'react-native';
 
 export default function ConfiguracoesScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Configurações</Text>
     </View>
   );
 }
@@ -13,13 +10,6 @@ export default function ConfiguracoesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.background,
-  },
-  title: {
-    fontSize: theme.typography.fontSize.xl,
-    color: theme.colors.text,
-    fontWeight: theme.typography.fontWeight.bold,
+    backgroundColor: '#F4F1EA',
   },
 });
