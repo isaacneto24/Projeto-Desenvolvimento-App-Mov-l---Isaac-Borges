@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.typography.fontSize.xl,
     fontWeight: theme.typography.fontWeight.bold,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     color: theme.colors.textSecondary,
