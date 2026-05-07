@@ -1,17 +1,9 @@
 import { useMemo, useState } from "react";
-import {
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  Pressable,
-} from "react-native";
+import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 
 import { theme } from "@/src/constants/theme";
+import { useAuth } from "@/src/contexts/AuthContext";
 import {
   PRODUTOS_MOCK,
   getAlertas,
@@ -21,6 +13,7 @@ import {
 
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
+  const { user } = useAuth();
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -57,13 +50,24 @@ export default function HomeScreen() {
     }
   };
 
+  const saudacao = () => {
+    const hora = new Date().getHours();
+    if (hora < 12) return "Bom dia";
+    if (hora < 18) return "Boa tarde";
+    return "Boa noite";
+  };
+
+  const inicial = user?.nome?.charAt(0).toUpperCase() ?? "U";
+
   const renderHeader = () => (
     <View style={styles.container}>
       {/* Saudação com botão de logout */}
       <View style={styles.headerSection}>
         <View style={styles.headerTop}>
           <View style={styles.greetingContainer}>
-            <Text style={styles.greeting}>Olá, Isaac 👋</Text>
+            <Text style={styles.greeting}>
+              {saudacao()}, {user?.nome?.split(" ")[0] ?? "Usuário"} 👋
+            </Text>
             <Text style={styles.date}>
               {new Date().toLocaleDateString("pt-BR", {
                 weekday: "long",
@@ -73,13 +77,9 @@ export default function HomeScreen() {
               })}
             </Text>
           </View>
-          <Pressable
-            style={styles.logoutButton}
-            onPress={() => router.replace("/(auth)/login")}
-            hitSlop={10}
-          >
-            <Ionicons name="log-out-outline" size={24} color="#FFFFFF" />
-          </Pressable>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{inicial}</Text>
+          </View>
         </View>
       </View>
 
@@ -257,15 +257,17 @@ const styles = StyleSheet.create({
     fontWeight: theme.typography.fontWeight.bold,
     color: theme.colors.text,
   },
-  logoutButton: {
-    backgroundColor: theme.colors.error,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.md,
-    justifyContent: "center",
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: theme.colors.primary,
     alignItems: "center",
-    minWidth: 44,
-    minHeight: 44,
-    flexShrink: 0,
+    justifyContent: "center",
+  },
+  avatarText: {
+    color: "#FFFFFF",
+    fontWeight: theme.typography.fontWeight.bold,
   },
   date: {
     fontSize: theme.typography.fontSize.sm,

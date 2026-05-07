@@ -1,4 +1,4 @@
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -14,11 +14,17 @@ import { Button } from "@/src/components/Button";
 import { Input } from "@/src/components/Input";
 import { LogoProEstoque } from "@/src/components/LogoProEstoque";
 import { theme } from "@/src/constants/theme";
+import { useAuth } from "@/src/contexts/AuthContext";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const { login, isLoading } = useAuth();
+
+  const emailValido = email.includes("@") && email.includes(".");
+  const senhaValida = senha.trim().length > 0;
+  const podeEntrar = emailValido && senhaValida;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -56,6 +62,15 @@ export default function LoginScreen() {
               onChangeText={setSenha}
             />
 
+            {!emailValido && email.length > 0 && (
+              <Text style={styles.errorText}>Informe um e-mail válido.</Text>
+            )}
+            {!senhaValida && senha.length > 0 && (
+              <Text style={styles.errorText}>
+                A senha não pode ficar vazia.
+              </Text>
+            )}
+
             <Link href="/(auth)/recuperar-senha" asChild>
               <Pressable>
                 <Text style={styles.linkAlignRight}>Esqueci minha senha</Text>
@@ -65,7 +80,9 @@ export default function LoginScreen() {
             <Button
               title="Entrar"
               fullWidth
-              onPress={() => router.replace("/(tabs)")}
+              loading={isLoading}
+              disabled={!podeEntrar || isLoading}
+              onPress={() => login(email.trim(), senha)}
             />
           </View>
 
@@ -142,5 +159,9 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
     fontSize: theme.typography.fontSize.sm,
     fontWeight: theme.typography.fontWeight.semibold,
+  },
+  errorText: {
+    color: theme.colors.error,
+    fontSize: theme.typography.fontSize.sm,
   },
 });
