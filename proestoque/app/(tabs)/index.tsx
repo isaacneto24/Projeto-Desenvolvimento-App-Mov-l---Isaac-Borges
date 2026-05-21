@@ -4,50 +4,57 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { theme } from "@/src/constants/theme";
 import { useAuth } from "@/src/contexts/AuthContext";
-import {
-  PRODUTOS_MOCK,
-  getAlertas,
-  calcularResumo,
-  StatusEstoque,
-} from "@/src/data/mockData";
+import { useProducts } from "@/src/contexts/ProductsContext";
+import { Produto } from "@/src/schemas/produtoSchema";
 
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const { user } = useAuth();
+  const { produtos } = useProducts();
 
   const onRefresh = () => {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1000);
   };
 
-  const resumo = useMemo(() => calcularResumo(PRODUTOS_MOCK), []);
-  const alertas = useMemo(() => getAlertas(PRODUTOS_MOCK), []);
-  const produtosRecentes = useMemo(() => PRODUTOS_MOCK.slice(0, 5), []);
+  // Calcular resumo a partir do contexto
+  const resumo = useMemo(() => {
+    const total = produtos.length;
+    const estoque = produtos.reduce((sum, p) => sum + p.quantidade, 0);
+    const categorias = new Set(produtos.map((p) => p.categoria)).size;
+    const alertas = produtos.filter(
+      (p) => p.quantidade === 0 || p.quantidade <= p.quantidadeMinima
+    ).length;
+    return { total, estoque, categorias, alertas };
+  }, [produtos]);
 
-  const getStatusColor = (status: StatusEstoque) => {
-    switch (status) {
-      case "normal":
-        return theme.colors.success;
-      case "baixo":
-        return "#F59E0B";
-      case "sem-estoque":
-        return theme.colors.error;
-      default:
-        return theme.colors.muted;
-    }
+  // Calcular alertas
+  const alertas = useMemo(() => {
+    return produtos
+      .filter((p) => p.quantidade === 0 || p.quantidade <= p.quantidadeMinima)
+      .map((p) => ({
+        id: p.id,
+        produtoNome: p.nome,
+        mensagem:
+          p.quantidade === 0
+            ? "Sem estoque"
+            : `Estoque baixo (${p.quantidade}/${p.quantidadeMinima})`,
+        tipo: p.quantidade === 0 ? "crítico" : "aviso" as const,
+      }));
+  }, [produtos]);
+
+  const produtosRecentes = useMemo(() => produtos.slice(-5).reverse(), [produtos]);
+
+  const getStatusColor = (quantidade: number, minima: number) => {
+    if (quantidade === 0) return theme.colors.error;
+    if (quantidade <= minima) return "#F59E0B";
+    return theme.colors.success;
   };
 
-  const getStatusLabel = (status: StatusEstoque) => {
-    switch (status) {
-      case "normal":
-        return "Normal";
-      case "baixo":
-        return "Baixo";
-      case "sem-estoque":
-        return "Sem estoque";
-      default:
-        return "Desconhecido";
-    }
+  const getStatusLabel = (quantidade: number, minima: number) => {
+    if (quantidade === 0) return "Sem estoque";
+    if (quantidade <= minima) return "Baixo";
+    return "Normal";
   };
 
   const saudacao = () => {
@@ -179,42 +186,47 @@ export default function HomeScreen() {
     </View>
   );
 
-  const renderProduct = ({ item }: { item: (typeof PRODUTOS_MOCK)[0] }) => (
-    <View style={styles.productItem}>
-      <View style={styles.productInfo}>
-        <Text style={styles.productName}>{item.nome}</Text>
-        <Text style={styles.productCategory}>{item.categoria}</Text>
-        <View style={styles.productFooter}>
-          <Text style={styles.productPrice}>R$ {item.preço.toFixed(2)}</Text>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: `${getStatusColor(item.status)}20` },
-            ]}
-          >
+  const renderProduct = ({ item }: { item: Produto }) => {
+    const status = getStatusColor(item.quantidade, item.quantidadeMinima);
+    const statusLabel = getStatusLabel(item.quantidade, item.quantidadeMinima);
+
+    return (
+      <View style={styles.productItem}>
+        <View style={styles.productInfo}>
+          <Text style={styles.productName}>{item.nome}</Text>
+          <Text style={styles.productCategory}>{item.categoria}</Text>
+          <View style={styles.productFooter}>
+            <Text style={styles.productPrice}>R$ {item.preco.toFixed(2)}</Text>
             <View
               style={[
-                styles.statusDot,
-                { backgroundColor: getStatusColor(item.status) },
-              ]}
-            />
-            <Text
-              style={[
-                styles.statusText,
-                { color: getStatusColor(item.status) },
+                styles.statusBadge,
+                { backgroundColor: `${status}20` },
               ]}
             >
-              {getStatusLabel(item.status)}
-            </Text>
+              <View
+                style={[
+                  styles.statusDot,
+                  { backgroundColor: status },
+                ]}
+              />
+              <Text
+                style={[
+                  styles.statusText,
+                  { color: status },
+                ]}
+              >
+                {statusLabel}
+              </Text>
+            </View>
           </View>
         </View>
+        <View style={styles.productStockBox}>
+          <Text style={styles.stockNumber}>{item.quantidade}</Text>
+          <Text style={styles.stockLabel}>un</Text>
+        </View>
       </View>
-      <View style={styles.productStockBox}>
-        <Text style={styles.stockNumber}>{item.estoque}</Text>
-        <Text style={styles.stockLabel}>un</Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <FlatList

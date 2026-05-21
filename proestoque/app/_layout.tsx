@@ -3,6 +3,7 @@ import React from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import { AuthProvider, useAuth } from "@/src/contexts/AuthContext";
+import { ProductsProvider } from "@/src/contexts/ProductsContext";
 
 function NavigationGuard({ children }: { children: React.ReactNode }) {
   const segments = useSegments();
@@ -41,12 +42,14 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <NavigationGuard>
-        <Stack initialRouteName="(auth)" screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-      </NavigationGuard>
+      <ProductsProvider>
+        <NavigationGuard>
+          <Stack initialRouteName="(auth)" screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </NavigationGuard>
+      </ProductsProvider>
     </AuthProvider>
   );
 }
