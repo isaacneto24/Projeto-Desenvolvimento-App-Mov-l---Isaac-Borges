@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "../services/api";
 
 export type User = {
   id?: string;
@@ -57,26 +58,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function login(email: string, senha: string) {
     setIsLoading(true);
-
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await api.post("/auth/login", { email, senha });
+      const { usuario, token } = response.data;
 
-      const fakeUser: User = {
-        id: "1",
-        nome: "João Silva",
-        email,
-      };
-      const fakeToken = "proestoque-token";
-
-      await Promise.all([
-        AsyncStorage.setItem(STORAGE_TOKEN_KEY, fakeToken),
-        AsyncStorage.setItem(STORAGE_USER_KEY, JSON.stringify(fakeUser)),
+      await AsyncStorage.multiSet([
+        [STORAGE_TOKEN_KEY, token],
+        [STORAGE_USER_KEY, JSON.stringify(usuario)],
       ]);
 
-      setToken(fakeToken);
-      setUser(fakeUser);
-    } catch {
-      Alert.alert("Erro", "Não foi possível fazer login agora.");
+      setToken(token);
+      setUser(usuario as User);
+    } catch (error: any) {
+      const mensagem = error.response?.data?.erro ?? "Erro ao fazer login";
+      Alert.alert("Erro", mensagem);
+      throw new Error(mensagem);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function registrar(nome: string, email: string, senha: string) {
+    setIsLoading(true);
+    try {
+      const response = await api.post("/auth/registro", { nome, email, senha });
+      const { usuario, token } = response.data;
+
+      await AsyncStorage.multiSet([
+        [STORAGE_TOKEN_KEY, token],
+        [STORAGE_USER_KEY, JSON.stringify(usuario)],
+      ]);
+
+      setToken(token);
+      setUser(usuario as User);
+    } catch (error: any) {
+      const mensagem = error.response?.data?.erro ?? "Erro ao criar conta";
+      Alert.alert("Erro", mensagem);
+      throw new Error(mensagem);
     } finally {
       setIsLoading(false);
     }
@@ -105,6 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       isAuthenticated: Boolean(token),
       login,
+      registrar,
       logout,
     }),
     [user, token, isLoading],

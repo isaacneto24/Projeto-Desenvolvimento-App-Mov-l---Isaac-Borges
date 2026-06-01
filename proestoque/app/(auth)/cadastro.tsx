@@ -1,6 +1,7 @@
 import { Link, router } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View, Alert } from "react-native";
+import { useAuth } from "@/src/contexts/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/src/components/Button";
@@ -15,14 +16,20 @@ export default function CadastroScreen() {
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const { registrar } = useAuth();
+
   const senhaDiferente = confirmarSenha.length > 0 && senha !== confirmarSenha;
 
-  const handleCriarConta = () => {
+  const handleCriarConta = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await registrar(nome, email, senha);
       router.replace("/(tabs)");
-    }, 2000);
+    } catch (error: any) {
+      Alert.alert("Erro", error.message ?? "Erro ao criar conta");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
