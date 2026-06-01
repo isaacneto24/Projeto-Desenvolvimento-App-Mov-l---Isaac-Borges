@@ -44,7 +44,10 @@ export default function RootLayout() {
     <AuthProvider>
       <ProductsProvider>
         <NavigationGuard>
-          <Stack initialRouteName="(auth)" screenOptions={{ headerShown: false }}>
+          <Stack
+            initialRouteName="(auth)"
+            screenOptions={{ headerShown: false }}
+          >
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
           </Stack>

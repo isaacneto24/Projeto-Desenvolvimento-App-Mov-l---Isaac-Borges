@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -10,50 +10,50 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useProducts } from '@/src/contexts/ProductsContext';
-import { theme } from '@/src/constants/theme';
-import { Produto } from '@/src/schemas/produtoSchema';
+} from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useProducts } from "@/src/contexts/ProductsContext";
+import { theme } from "@/src/constants/theme";
+import { Produto } from "@/src/schemas/produtoSchema";
 
-const CATEGORIAS = ['Bebidas', 'Alimentos', 'Limpeza', 'Eletrônicos', 'Outros'];
+const CATEGORIAS = ["Bebidas", "Alimentos", "Limpeza", "Eletrônicos", "Outros"];
 
 export default function ProdutosScreen() {
   const router = useRouter();
   const { produtos, isLoading } = useProducts();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const getStatusEstoque = (produto: Produto) => {
-    if (produto.quantidade === 0) return 'sem-estoque';
-    if (produto.quantidade <= produto.quantidadeMinima) return 'baixo';
-    return 'normal';
+    if (produto.quantidade === 0) return "sem-estoque";
+    if (produto.quantidade <= produto.quantidadeMinima) return "baixo";
+    return "normal";
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'normal':
-        return '#10B981';
-      case 'baixo':
-        return '#F59E0B';
-      case 'sem-estoque':
-        return '#EF4444';
+      case "normal":
+        return "#10B981";
+      case "baixo":
+        return "#F59E0B";
+      case "sem-estoque":
+        return "#EF4444";
       default:
-        return '#6B7280';
+        return "#6B7280";
     }
   };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'normal':
-        return 'Normal';
-      case 'baixo':
-        return 'Baixo';
-      case 'sem-estoque':
-        return 'Sem estoque';
+      case "normal":
+        return "Normal";
+      case "baixo":
+        return "Baixo";
+      case "sem-estoque":
+        return "Sem estoque";
       default:
-        return 'Desconhecido';
+        return "Desconhecido";
     }
   };
 
@@ -66,7 +66,7 @@ export default function ProdutosScreen() {
       filtered = filtered.filter(
         (p) =>
           p.nome.toLowerCase().includes(searchLower) ||
-          p.categoria.toLowerCase().includes(searchLower)
+          p.categoria.toLowerCase().includes(searchLower),
       );
     }
 
@@ -80,13 +80,13 @@ export default function ProdutosScreen() {
 
   const handleProductPress = (id: string) => {
     router.push({
-      pathname: '/(tabs)/produtos/[id]' as any,
+      pathname: "/(tabs)/produtos/[id]" as any,
       params: { id },
     });
   };
 
   const handleNewProduct = () => {
-    router.push('/(tabs)/produtos/novo' as any);
+    router.push("/(tabs)/produtos/novo" as any);
   };
 
   const renderHeader = useCallback(
@@ -94,7 +94,12 @@ export default function ProdutosScreen() {
       <View style={styles.headerContainer}>
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={18} color="#9CA3AF" style={styles.searchIcon} />
+          <Ionicons
+            name="search"
+            size={18}
+            color="#9CA3AF"
+            style={styles.searchIcon}
+          />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar produto..."
@@ -153,13 +158,13 @@ export default function ProdutosScreen() {
         <View style={styles.resultCount}>
           <Text style={styles.resultCountText}>
             {filteredProducts.length} produto
-            {filteredProducts.length !== 1 ? 's' : ''} encontrado
-            {filteredProducts.length !== 1 ? 's' : ''}
+            {filteredProducts.length !== 1 ? "s" : ""} encontrado
+            {filteredProducts.length !== 1 ? "s" : ""}
           </Text>
         </View>
       </View>
     ),
-    [filteredProducts.length, search, selectedCategory]
+    [filteredProducts.length, search, selectedCategory],
   );
 
   const renderProduct = ({ item }: { item: Produto }) => {
@@ -195,17 +200,9 @@ export default function ProdutosScreen() {
               ]}
             >
               <View
-                style={[
-                  styles.statusDot,
-                  { backgroundColor: statusColor },
-                ]}
+                style={[styles.statusDot, { backgroundColor: statusColor }]}
               />
-              <Text
-                style={[
-                  styles.statusLabel,
-                  { color: statusColor },
-                ]}
-              >
+              <Text style={[styles.statusLabel, { color: statusColor }]}>
                 {statusLabel}
               </Text>
             </View>
@@ -226,7 +223,7 @@ export default function ProdutosScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <FlatList
@@ -261,31 +258,31 @@ export default function ProdutosScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: "#F9FAFB",
   },
   loadingContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F9FAFB',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F9FAFB",
   },
   listContent: {
     paddingBottom: 100,
   },
   headerContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: "#E5E7EB",
   },
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginHorizontal: 16,
     marginBottom: 16,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: "#F3F4F6",
     borderRadius: 8,
   },
   searchIcon: {
@@ -294,7 +291,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: '#1F2937',
+    color: "#1F2937",
   },
   categoriesContainer: {
     marginBottom: 16,
@@ -304,51 +301,51 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     marginRight: 8,
     borderRadius: 16,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: "#E5E7EB",
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: "#D1D5DB",
   },
   categoryChipActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#2563EB',
+    backgroundColor: "#3B82F6",
+    borderColor: "#2563EB",
   },
   categoryChipText: {
     fontSize: 12,
-    fontWeight: '500',
-    color: '#6B7280',
+    fontWeight: "500",
+    color: "#6B7280",
   },
   categoryChipTextActive: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
   resultCount: {
     paddingHorizontal: 16,
   },
   resultCountText: {
     fontSize: 12,
-    color: '#6B7280',
-    fontWeight: '500',
+    color: "#6B7280",
+    fontWeight: "500",
   },
   productCard: {
     marginHorizontal: 12,
     marginVertical: 6,
     paddingHorizontal: 12,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: "#E5E7EB",
   },
   productContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   productIcon: {
     width: 40,
     height: 40,
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#F3F4F6",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 12,
   },
   productInfo: {
@@ -356,25 +353,25 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#1F2937',
+    fontWeight: "600",
+    color: "#1F2937",
     marginBottom: 4,
   },
   productQuantity: {
     fontSize: 12,
-    color: '#6B7280',
+    color: "#6B7280",
     marginBottom: 2,
   },
   productCategory: {
     fontSize: 11,
-    color: '#9CA3AF',
+    color: "#9CA3AF",
   },
   productRight: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -388,43 +385,43 @@ const styles = StyleSheet.create({
   },
   statusLabel: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   productPrice: {
     fontSize: 13,
-    fontWeight: '700',
-    color: '#1F2937',
+    fontWeight: "700",
+    color: "#1F2937",
   },
   fab: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 24,
     right: 24,
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#3B82F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
+    backgroundColor: "#3B82F6",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
   },
   emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 60,
   },
   emptyText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
+    fontWeight: "600",
+    color: "#1F2937",
     marginTop: 12,
   },
   emptySubtext: {
     fontSize: 12,
-    color: '#6B7280',
+    color: "#6B7280",
     marginTop: 4,
   },
 });

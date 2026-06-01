@@ -23,7 +23,7 @@ export default function HomeScreen() {
     const estoque = produtos.reduce((sum, p) => sum + p.quantidade, 0);
     const categorias = new Set(produtos.map((p) => p.categoria)).size;
     const alertas = produtos.filter(
-      (p) => p.quantidade === 0 || p.quantidade <= p.quantidadeMinima
+      (p) => p.quantidade === 0 || p.quantidade <= p.quantidadeMinima,
     ).length;
     return { total, estoque, categorias, alertas };
   }, [produtos]);
@@ -39,11 +39,14 @@ export default function HomeScreen() {
           p.quantidade === 0
             ? "Sem estoque"
             : `Estoque baixo (${p.quantidade}/${p.quantidadeMinima})`,
-        tipo: p.quantidade === 0 ? "crítico" : "aviso" as const,
+        tipo: p.quantidade === 0 ? "crítico" : ("aviso" as const),
       }));
   }, [produtos]);
 
-  const produtosRecentes = useMemo(() => produtos.slice(-5).reverse(), [produtos]);
+  const produtosRecentes = useMemo(
+    () => produtos.slice(-5).reverse(),
+    [produtos],
+  );
 
   const getStatusColor = (quantidade: number, minima: number) => {
     if (quantidade === 0) return theme.colors.error;
@@ -198,23 +201,10 @@ export default function HomeScreen() {
           <View style={styles.productFooter}>
             <Text style={styles.productPrice}>R$ {item.preco.toFixed(2)}</Text>
             <View
-              style={[
-                styles.statusBadge,
-                { backgroundColor: `${status}20` },
-              ]}
+              style={[styles.statusBadge, { backgroundColor: `${status}20` }]}
             >
-              <View
-                style={[
-                  styles.statusDot,
-                  { backgroundColor: status },
-                ]}
-              />
-              <Text
-                style={[
-                  styles.statusText,
-                  { color: status },
-                ]}
-              >
+              <View style={[styles.statusDot, { backgroundColor: status }]} />
+              <Text style={[styles.statusText, { color: status }]}>
                 {statusLabel}
               </Text>
             </View>

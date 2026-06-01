@@ -1,9 +1,9 @@
-import React from 'react';
-import { useRouter } from 'expo-router';
-import { Alert } from 'react-native';
-import FormProduto from '@/src/components/FormProduto';
-import { useProducts } from '@/src/contexts/ProductsContext';
-import { ProdutoFormData } from '@/src/schemas/produtoSchema';
+import React from "react";
+import { useRouter } from "expo-router";
+import { Alert } from "react-native";
+import FormProduto from "@/src/components/FormProduto";
+import { useProducts } from "@/src/contexts/ProductsContext";
+import { ProdutoFormData } from "@/src/schemas/produtoSchema";
 
 export default function NovoProduto() {
   const router = useRouter();
@@ -17,11 +17,11 @@ export default function NovoProduto() {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       adicionarProduto(data);
-      Alert.alert('Sucesso', 'Produto adicionado com sucesso!');
+      Alert.alert("Sucesso", "Produto adicionado com sucesso!");
       router.back();
     } catch (error) {
-      console.error('Erro ao criar produto:', error);
-      Alert.alert('Erro', 'Ocorreu um erro ao criar o produto.');
+      console.error("Erro ao criar produto:", error);
+      Alert.alert("Erro", "Ocorreu um erro ao criar o produto.");
     } finally {
       setIsLoading(false);
     }

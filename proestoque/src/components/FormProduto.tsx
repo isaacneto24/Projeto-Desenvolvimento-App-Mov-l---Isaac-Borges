@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -7,12 +7,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-} from 'react-native';
-import { Controller, useForm, SubmitHandler } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { produtoSchema, ProdutoFormData } from '@/src/schemas/produtoSchema';
-import { Input } from '@/src/components/Input';
-import { Button } from '@/src/components/Button';
+} from "react-native";
+import { Controller, useForm, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { produtoSchema, ProdutoFormData } from "@/src/schemas/produtoSchema";
+import { Input } from "@/src/components/Input";
+import { Button } from "@/src/components/Button";
 
 interface FormProdutoProps {
   initialData?: ProdutoFormData;
@@ -27,7 +27,7 @@ export default function FormProduto({
   initialData,
   onSubmit,
   isLoading = false,
-  submitButtonLabel = 'Cadastrar produto',
+  submitButtonLabel = "Cadastrar produto",
   onDelete,
   showDeleteButton = false,
 }: FormProdutoProps) {
@@ -38,15 +38,15 @@ export default function FormProduto({
     reset,
   } = useForm<ProdutoFormData>({
     resolver: zodResolver(produtoSchema) as any,
-    mode: 'onBlur',
+    mode: "onBlur",
     defaultValues: initialData || {
-      nome: '',
+      nome: "",
       quantidade: 0,
       quantidadeMinima: 0,
       preco: 0,
-      categoria: 'Alimentos',
-      observacao: '',
-      foto: '',
+      categoria: "Alimentos",
+      observacao: "",
+      foto: "",
     },
   });
 
@@ -60,37 +60,44 @@ export default function FormProduto({
     try {
       await onSubmit(data);
     } catch (error) {
-      console.error('Erro ao enviar formulário:', error);
-      Alert.alert('Erro', 'Ocorreu um erro ao salvar o produto.');
+      console.error("Erro ao enviar formulário:", error);
+      Alert.alert("Erro", "Ocorreu um erro ao salvar o produto.");
     }
   };
 
   const handleDeletePress = async () => {
-    Alert.alert('Excluir Produto', 'Tem certeza que deseja excluir este produto?', [
-      {
-        text: 'Cancelar',
-        onPress: () => {},
-        style: 'cancel',
-      },
-      {
-        text: 'Excluir',
-        onPress: async () => {
-          try {
-            if (onDelete) {
-              await onDelete();
-            }
-          } catch (error) {
-            console.error('Erro ao deletar produto:', error);
-            Alert.alert('Erro', 'Ocorreu um erro ao excluir o produto.');
-          }
+    Alert.alert(
+      "Excluir Produto",
+      "Tem certeza que deseja excluir este produto?",
+      [
+        {
+          text: "Cancelar",
+          onPress: () => {},
+          style: "cancel",
         },
-        style: 'destructive',
-      },
-    ]);
+        {
+          text: "Excluir",
+          onPress: async () => {
+            try {
+              if (onDelete) {
+                await onDelete();
+              }
+            } catch (error) {
+              console.error("Erro ao deletar produto:", error);
+              Alert.alert("Erro", "Ocorreu um erro ao excluir o produto.");
+            }
+          },
+          style: "destructive",
+        },
+      ],
+    );
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
       {/* Nome do Produto */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>
@@ -109,7 +116,9 @@ export default function FormProduto({
             />
           )}
         />
-        {errors.nome && <Text style={styles.errorText}>{errors.nome.message}</Text>}
+        {errors.nome && (
+          <Text style={styles.errorText}>{errors.nome.message}</Text>
+        )}
       </View>
 
       {/* Quantidade em estoque */}
@@ -123,8 +132,10 @@ export default function FormProduto({
           render={({ field: { value, onChange, onBlur } }) => (
             <Input
               placeholder="Ex: 12"
-              value={value?.toString() || ''}
-              onChangeText={(text: string) => onChange(text ? parseInt(text, 10) : undefined)}
+              value={value?.toString() || ""}
+              onChangeText={(text: string) =>
+                onChange(text ? parseInt(text, 10) : undefined)
+              }
               onBlur={onBlur}
               keyboardType="numeric"
               editable={!isSubmitting}
@@ -147,8 +158,10 @@ export default function FormProduto({
           render={({ field: { value, onChange, onBlur } }) => (
             <Input
               placeholder="Ex: 5"
-              value={value?.toString() || ''}
-              onChangeText={(text: string) => onChange(text ? parseInt(text, 10) : undefined)}
+              value={value?.toString() || ""}
+              onChangeText={(text: string) =>
+                onChange(text ? parseInt(text, 10) : undefined)
+              }
               onBlur={onBlur}
               keyboardType="numeric"
               editable={!isSubmitting}
@@ -156,7 +169,9 @@ export default function FormProduto({
           )}
         />
         {errors.quantidadeMinima && (
-          <Text style={styles.errorText}>{errors.quantidadeMinima.message}</Text>
+          <Text style={styles.errorText}>
+            {errors.quantidadeMinima.message}
+          </Text>
         )}
       </View>
 
@@ -171,15 +186,19 @@ export default function FormProduto({
           render={({ field: { value, onChange, onBlur } }) => (
             <Input
               placeholder="Informe o preço"
-              value={value?.toString() || ''}
-              onChangeText={(text: string) => onChange(text ? parseFloat(text) : undefined)}
+              value={value?.toString() || ""}
+              onChangeText={(text: string) =>
+                onChange(text ? parseFloat(text) : undefined)
+              }
               onBlur={onBlur}
               keyboardType="decimal-pad"
               editable={!isSubmitting}
             />
           )}
         />
-        {errors.preco && <Text style={styles.errorText}>{errors.preco.message}</Text>}
+        {errors.preco && (
+          <Text style={styles.errorText}>{errors.preco.message}</Text>
+        )}
       </View>
 
       {/* Categoria */}
@@ -192,26 +211,28 @@ export default function FormProduto({
           name="categoria"
           render={({ field: { value, onChange } }) => (
             <View style={styles.categoryContainer}>
-              {['Bebidas', 'Alimentos', 'Limpeza', 'Eletrônicos', 'Outros'].map((cat) => (
-                <TouchableOpacity
-                  key={cat}
-                  style={[
-                    styles.categoryButton,
-                    value === cat && styles.categoryButtonActive,
-                  ]}
-                  onPress={() => onChange(cat as any)}
-                  disabled={isSubmitting}
-                >
-                  <Text
+              {["Bebidas", "Alimentos", "Limpeza", "Eletrônicos", "Outros"].map(
+                (cat) => (
+                  <TouchableOpacity
+                    key={cat}
                     style={[
-                      styles.categoryButtonText,
-                      value === cat && styles.categoryButtonTextActive,
+                      styles.categoryButton,
+                      value === cat && styles.categoryButtonActive,
                     ]}
+                    onPress={() => onChange(cat as any)}
+                    disabled={isSubmitting}
                   >
-                    {cat}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={[
+                        styles.categoryButtonText,
+                        value === cat && styles.categoryButtonTextActive,
+                      ]}
+                    >
+                      {cat}
+                    </Text>
+                  </TouchableOpacity>
+                ),
+              )}
             </View>
           )}
         />
@@ -268,7 +289,7 @@ export default function FormProduto({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: "#F9FAFB",
   },
   contentContainer: {
     paddingHorizontal: 16,
@@ -279,56 +300,56 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#1F2937',
+    fontWeight: "600",
+    color: "#1F2937",
     marginBottom: 8,
   },
   required: {
-    color: '#EF4444',
+    color: "#EF4444",
   },
   errorText: {
     fontSize: 12,
-    color: '#EF4444',
+    color: "#EF4444",
     marginTop: 6,
   },
   categoryContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   categoryButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: "#E5E7EB",
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: "#D1D5DB",
   },
   categoryButtonActive: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#2563EB',
+    backgroundColor: "#3B82F6",
+    borderColor: "#2563EB",
   },
   categoryButtonText: {
     fontSize: 12,
-    fontWeight: '500',
-    color: '#6B7280',
+    fontWeight: "500",
+    color: "#6B7280",
   },
   categoryButtonTextActive: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
   deleteButton: {
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 8,
-    backgroundColor: '#FEE2E2',
+    backgroundColor: "#FEE2E2",
     borderWidth: 1,
-    borderColor: '#FCA5A5',
-    alignItems: 'center',
+    borderColor: "#FCA5A5",
+    alignItems: "center",
     marginBottom: 20,
   },
   deleteButtonText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#DC2626',
+    fontWeight: "600",
+    color: "#DC2626",
   },
 });

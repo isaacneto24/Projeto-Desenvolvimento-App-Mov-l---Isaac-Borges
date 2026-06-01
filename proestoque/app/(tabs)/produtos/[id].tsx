@@ -1,9 +1,9 @@
-import React from 'react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Alert, ActivityIndicator, View } from 'react-native';
-import FormProduto from '@/src/components/FormProduto';
-import { useProducts } from '@/src/contexts/ProductsContext';
-import { ProdutoFormData } from '@/src/schemas/produtoSchema';
+import React from "react";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { Alert, ActivityIndicator, View } from "react-native";
+import FormProduto from "@/src/components/FormProduto";
+import { useProducts } from "@/src/contexts/ProductsContext";
+import { ProdutoFormData } from "@/src/schemas/produtoSchema";
 
 export default function EditarProduto() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function EditarProduto() {
 
   if (!produto) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator size="large" />
       </View>
     );
@@ -30,11 +30,11 @@ export default function EditarProduto() {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       editarProduto(id, data);
-      Alert.alert('Sucesso', 'Produto atualizado com sucesso!');
+      Alert.alert("Sucesso", "Produto atualizado com sucesso!");
       router.back();
     } catch (error) {
-      console.error('Erro ao editar produto:', error);
-      Alert.alert('Erro', 'Ocorreu um erro ao atualizar o produto.');
+      console.error("Erro ao editar produto:", error);
+      Alert.alert("Erro", "Ocorreu um erro ao atualizar o produto.");
     } finally {
       setIsLoading(false);
     }
@@ -47,11 +47,11 @@ export default function EditarProduto() {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       deletarProduto(id);
-      Alert.alert('Sucesso', 'Produto deletado com sucesso!');
+      Alert.alert("Sucesso", "Produto deletado com sucesso!");
       router.back();
     } catch (error) {
-      console.error('Erro ao deletar produto:', error);
-      Alert.alert('Erro', 'Ocorreu um erro ao deletar o produto.');
+      console.error("Erro ao deletar produto:", error);
+      Alert.alert("Erro", "Ocorreu um erro ao deletar o produto.");
     } finally {
       setIsLoading(false);
     }
