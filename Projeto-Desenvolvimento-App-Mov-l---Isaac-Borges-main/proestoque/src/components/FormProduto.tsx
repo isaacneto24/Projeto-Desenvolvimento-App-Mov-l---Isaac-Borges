@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { produtoSchema, ProdutoFormData } from "@/src/schemas/produtoSchema";
 import { Input } from "@/src/components/Input";
 import { Button } from "@/src/components/Button";
+import { useCategorias } from "@/src/hooks/useCategorias";
 
 interface FormProdutoProps {
   initialData?: ProdutoFormData;
@@ -38,17 +39,19 @@ export default function FormProduto({
     reset,
   } = useForm<ProdutoFormData>({
     resolver: zodResolver(produtoSchema) as any,
-    mode: "onBlur",
+    mode: "onChange",
     defaultValues: initialData || {
       nome: "",
       quantidade: 0,
       quantidadeMinima: 0,
       preco: 0,
-      categoria: "Alimentos",
+      categoriaId: "",
       observacao: "",
       foto: "",
     },
   });
+
+  const { categorias, isLoading: loadingCategorias } = useCategorias();
 
   React.useEffect(() => {
     if (initialData) {
@@ -206,38 +209,42 @@ export default function FormProduto({
         <Text style={styles.label}>
           Categoria <Text style={styles.required}>*</Text>
         </Text>
-        <Controller
-          control={control}
-          name="categoria"
-          render={({ field: { value, onChange } }) => (
-            <View style={styles.categoryContainer}>
-              {["Bebidas", "Alimentos", "Limpeza", "Eletrônicos", "Outros"].map(
-                (cat) => (
-                  <TouchableOpacity
-                    key={cat}
-                    style={[
-                      styles.categoryButton,
-                      value === cat && styles.categoryButtonActive,
-                    ]}
-                    onPress={() => onChange(cat as any)}
-                    disabled={isSubmitting}
-                  >
-                    <Text
+        {loadingCategorias ? (
+          <ActivityIndicator size="small" color="#3B82F6" style={{ alignSelf: "flex-start", marginVertical: 8 }} />
+        ) : (
+          <Controller
+            control={control}
+            name="categoriaId"
+            render={({ field: { value, onChange } }) => (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View style={styles.categoryContainer}>
+                  {categorias.map((cat) => (
+                    <TouchableOpacity
+                      key={cat.id}
                       style={[
-                        styles.categoryButtonText,
-                        value === cat && styles.categoryButtonTextActive,
+                        styles.categoryButton,
+                        value === cat.id && styles.categoryButtonActive,
                       ]}
+                      onPress={() => onChange(cat.id)}
+                      disabled={isSubmitting}
                     >
-                      {cat}
-                    </Text>
-                  </TouchableOpacity>
-                ),
-              )}
-            </View>
-          )}
-        />
-        {errors.categoria && (
-          <Text style={styles.errorText}>{errors.categoria.message}</Text>
+                      <Text
+                        style={[
+                          styles.categoryButtonText,
+                          value === cat.id && styles.categoryButtonTextActive,
+                        ]}
+                      >
+                        {cat.nome}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+            )}
+          />
+        )}
+        {errors.categoriaId && (
+          <Text style={styles.errorText}>{errors.categoriaId.message}</Text>
         )}
       </View>
 
@@ -250,7 +257,7 @@ export default function FormProduto({
           render={({ field: { value, onChange, onBlur } }) => (
             <Input
               placeholder="Ex: Verificar validade ao receber"
-              value={value}
+              value={value ?? ""}
               onChangeText={onChange}
               onBlur={onBlur}
               multiline

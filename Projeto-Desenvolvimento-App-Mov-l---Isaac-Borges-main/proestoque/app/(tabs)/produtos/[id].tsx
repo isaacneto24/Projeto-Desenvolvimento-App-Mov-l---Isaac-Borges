@@ -26,15 +26,15 @@ export default function EditarProduto() {
   const handleSubmit = async (data: ProdutoFormData) => {
     try {
       setIsLoading(true);
-      // Simula delay de network
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      editarProduto(id, data);
+      await editarProduto(id, data);
       Alert.alert("Sucesso", "Produto atualizado com sucesso!");
       router.back();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao editar produto:", error);
-      Alert.alert("Erro", "Ocorreu um erro ao atualizar o produto.");
+      Alert.alert(
+        "Não foi possível salvar",
+        error.message ?? "Verifique sua conexão e tente novamente."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -43,15 +43,15 @@ export default function EditarProduto() {
   const handleDelete = async () => {
     try {
       setIsLoading(true);
-      // Simula delay de network
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      deletarProduto(id);
+      await deletarProduto(id);
       Alert.alert("Sucesso", "Produto deletado com sucesso!");
       router.back();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao deletar produto:", error);
-      Alert.alert("Erro", "Ocorreu um erro ao deletar o produto.");
+      Alert.alert(
+        "Erro ao excluir",
+        error.message ?? "Ocorreu um erro ao deletar o produto."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -62,9 +62,9 @@ export default function EditarProduto() {
     quantidade: produto.quantidade,
     quantidadeMinima: produto.quantidadeMinima,
     preco: produto.preco,
-    categoria: produto.categoria,
-    observacao: produto.observacao,
-    foto: produto.foto,
+    categoriaId: produto.categoriaId,
+    observacao: produto.observacao || "",
+    foto: produto.foto || "",
   };
 
   return (

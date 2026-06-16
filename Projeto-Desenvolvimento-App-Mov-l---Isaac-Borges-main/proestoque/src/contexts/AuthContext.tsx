@@ -21,6 +21,7 @@ export type AuthContextType = {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, senha: string) => Promise<void>;
+  registrar: (nome: string, email: string, senha: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 

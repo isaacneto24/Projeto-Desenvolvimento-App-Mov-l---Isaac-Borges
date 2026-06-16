@@ -22,25 +22,34 @@ export const produtoSchema = z.object({
     .positive({ message: "Preço deve ser maior que zero" })
     .multipleOf(0.01, { message: "Preço deve ter no máximo 2 casas decimais" }),
 
-  categoria: z.enum(
-    ["Bebidas", "Alimentos", "Limpeza", "Eletrônicos", "Outros"] as const,
-    {
-      message: "Categoria inválida",
-    },
-  ),
+  categoriaId: z
+    .string({ message: "Categoria é obrigatória" })
+    .min(1, { message: "Selecione uma categoria" }),
 
   observacao: z
     .string()
     .max(500, { message: "Observação não pode exceder 500 caracteres" })
-    .default(""),
+    .optional()
+    .nullable()
+    .or(z.literal("")),
 
-  foto: z.string().default(""),
+  foto: z.string().optional().nullable().or(z.literal("")),
 });
 
 export type ProdutoFormData = z.infer<typeof produtoSchema>;
 
-export type Produto = ProdutoFormData & {
+export type Produto = {
   id: string;
-  dataCriacao: string;
-  dataAtualizacao: string;
+  nome: string;
+  quantidade: number;
+  quantidadeMinima: number;
+  preco: number;
+  unidade: string;
+  observacao: string | null;
+  foto: string | null;
+  categoriaId: string;
+  categoria?: { id: string; nome: string; icone: string; cor: string };
+  ultimaMovimentacao: string;
+  criadoEm: string;
 };
+

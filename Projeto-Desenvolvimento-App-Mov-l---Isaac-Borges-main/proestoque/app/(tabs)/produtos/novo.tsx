@@ -13,15 +13,15 @@ export default function NovoProduto() {
   const handleSubmit = async (data: ProdutoFormData) => {
     try {
       setIsLoading(true);
-      // Simula delay de network (como na Aula 7)
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      adicionarProduto(data);
+      await adicionarProduto(data);
       Alert.alert("Sucesso", "Produto adicionado com sucesso!");
       router.back();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao criar produto:", error);
-      Alert.alert("Erro", "Ocorreu um erro ao criar o produto.");
+      Alert.alert(
+        "Não foi possível salvar",
+        error.message ?? "Verifique sua conexão e tente novamente."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -35,3 +35,4 @@ export default function NovoProduto() {
     />
   );
 }
+

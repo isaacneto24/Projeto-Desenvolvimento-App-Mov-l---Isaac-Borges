@@ -9,21 +9,31 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useProducts } from "@/src/contexts/ProductsContext";
+import { useCategorias } from "@/src/hooks/useCategorias";
 import { theme } from "@/src/constants/theme";
 import { Produto } from "@/src/schemas/produtoSchema";
-
-const CATEGORIAS = ["Bebidas", "Alimentos", "Limpeza", "Eletrônicos", "Outros"];
+import { LoadingView } from "@/src/components/LoadingView";
+import { ErrorView } from "@/src/components/ErrorView";
+import { formatarPreco } from "@/src/utils/formatters";
 
 export default function ProdutosScreen() {
   const router = useRouter();
-  const { produtos, isLoading } = useProducts();
+  const { produtos, isLoading, error, carregarProdutos } = useProducts();
+  const { categorias } = useCategorias();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await carregarProdutos();
+    setRefreshing(false);
+  }, [carregarProdutos]);
 
   const getStatusEstoque = (produto: Produto) => {
     if (produto.quantidade === 0) return "sem-estoque";
@@ -66,13 +76,13 @@ export default function ProdutosScreen() {
       filtered = filtered.filter(
         (p) =>
           p.nome.toLowerCase().includes(searchLower) ||
-          p.categoria.toLowerCase().includes(searchLower),
+          p.categoria?.nome.toLowerCase().includes(searchLower),
       );
     }
 
     // Filtro por categoria
     if (selectedCategory) {
-      filtered = filtered.filter((p) => p.categoria === selectedCategory);
+      filtered = filtered.filter((p) => p.categoriaId === selectedCategory);
     }
 
     return filtered;
@@ -89,82 +99,87 @@ export default function ProdutosScreen() {
     router.push("/(tabs)/produtos/novo" as any);
   };
 
-  const renderHeader = useCallback(
-    () => (
-      <View style={styles.headerContainer}>
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <Ionicons
-            name="search"
-            size={18}
-            color="#9CA3AF"
-            style={styles.searchIcon}
-          />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Buscar produto..."
-            value={search}
-            onChangeText={setSearch}
-            placeholderTextColor="#D1D5DB"
-          />
-        </View>
+  if (isLoading && produtos.length === 0) {
+    return <LoadingView mensagem="Buscando produtos..." />;
+  }
 
-        {/* Category Filter */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.categoriesContainer}
-          contentContainerStyle={{ paddingHorizontal: 16 }}
+  if (error && produtos.length === 0) {
+    return <ErrorView mensagem={error} onRetry={carregarProdutos} />;
+  }
+
+  const renderHeader = () => (
+    <View style={styles.headerContainer}>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Ionicons
+          name="search"
+          size={18}
+          color="#9CA3AF"
+          style={styles.searchIcon}
+        />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar produto..."
+          value={search}
+          onChangeText={setSearch}
+          placeholderTextColor="#D1D5DB"
+        />
+      </View>
+
+      {/* Category Filter */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.categoriesContainer}
+        contentContainerStyle={{ paddingHorizontal: 16 }}
+      >
+        <TouchableOpacity
+          style={[
+            styles.categoryChip,
+            selectedCategory === null && styles.categoryChipActive,
+          ]}
+          onPress={() => setSelectedCategory(null)}
         >
+          <Text
+            style={[
+              styles.categoryChipText,
+              selectedCategory === null && styles.categoryChipTextActive,
+            ]}
+          >
+            Todos
+          </Text>
+        </TouchableOpacity>
+
+        {categorias.map((cat) => (
           <TouchableOpacity
+            key={cat.id}
             style={[
               styles.categoryChip,
-              selectedCategory === null && styles.categoryChipActive,
+              selectedCategory === cat.id && styles.categoryChipActive,
             ]}
-            onPress={() => setSelectedCategory(null)}
+            onPress={() => setSelectedCategory((prev) => (prev === cat.id ? null : cat.id))}
           >
             <Text
               style={[
                 styles.categoryChipText,
-                selectedCategory === null && styles.categoryChipTextActive,
+                selectedCategory === cat.id && styles.categoryChipTextActive,
               ]}
             >
-              Todos
+              {cat.nome}
             </Text>
           </TouchableOpacity>
+        ))}
+      </ScrollView>
 
-          {CATEGORIAS.map((cat) => (
-            <TouchableOpacity
-              key={cat}
-              style={[
-                styles.categoryChip,
-                selectedCategory === cat && styles.categoryChipActive,
-              ]}
-              onPress={() => setSelectedCategory(cat)}
-            >
-              <Text
-                style={[
-                  styles.categoryChipText,
-                  selectedCategory === cat && styles.categoryChipTextActive,
-                ]}
-              >
-                {cat}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Result Count */}
-        <View style={styles.resultCount}>
-          <Text style={styles.resultCountText}>
-            {filteredProducts.length} produto
-            {filteredProducts.length !== 1 ? "s" : ""} encontrado
-            {filteredProducts.length !== 1 ? "s" : ""}
-          </Text>
-        </View>
+      {/* Result Count */}
+      <View style={styles.resultCount}>
+        <Text style={styles.resultCountText}>
+          {filteredProducts.length} produto
+          {filteredProducts.length !== 1 ? "s" : ""} encontrado
+          {filteredProducts.length !== 1 ? "s" : ""}
+        </Text>
       </View>
-    ),
-    [filteredProducts.length, search, selectedCategory],
+    </View>
   );
 
   const renderProduct = ({ item }: { item: Produto }) => {
@@ -187,8 +202,12 @@ export default function ProdutosScreen() {
           {/* Product Info */}
           <View style={styles.productInfo}>
             <Text style={styles.productName}>{item.nome}</Text>
-            <Text style={styles.productQuantity}>{item.quantidade} un</Text>
-            <Text style={styles.productCategory}>{item.categoria}</Text>
+            <Text style={styles.productQuantity}>
+              {item.quantidade} {item.unidade || "un"}
+            </Text>
+            <Text style={styles.productCategory}>
+              {item.categoria?.nome || "Sem categoria"}
+            </Text>
           </View>
 
           {/* Status Badge */}
@@ -206,20 +225,12 @@ export default function ProdutosScreen() {
                 {statusLabel}
               </Text>
             </View>
-            <Text style={styles.productPrice}>R$ {item.preco.toFixed(2)}</Text>
+            <Text style={styles.productPrice}>{formatarPreco(item.preco)}</Text>
           </View>
         </View>
       </TouchableOpacity>
     );
   };
-
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
-    );
-  }
 
   return (
     <KeyboardAvoidingView
@@ -232,6 +243,13 @@ export default function ProdutosScreen() {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={renderHeader}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.colors.primary}
+          />
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="cube-outline" size={48} color="#D1D5DB" />
@@ -258,12 +276,6 @@ export default function ProdutosScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: "#F9FAFB",
   },
   listContent: {

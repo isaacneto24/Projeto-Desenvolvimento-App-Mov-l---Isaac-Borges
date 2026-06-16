@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -6,22 +6,25 @@ import { theme } from "@/src/constants/theme";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { useProducts } from "@/src/contexts/ProductsContext";
 import { Produto } from "@/src/schemas/produtoSchema";
+import { LoadingView } from "@/src/components/LoadingView";
+import { formatarPreco } from "@/src/utils/formatters";
 
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const { user } = useAuth();
-  const { produtos } = useProducts();
+  const { produtos, isLoading, carregarProdutos } = useProducts();
 
-  const onRefresh = () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
-  };
+    await carregarProdutos();
+    setRefreshing(false);
+  }, [carregarProdutos]);
 
   // Calcular resumo a partir do contexto
   const resumo = useMemo(() => {
     const total = produtos.length;
     const estoque = produtos.reduce((sum, p) => sum + p.quantidade, 0);
-    const categorias = new Set(produtos.map((p) => p.categoria)).size;
+    const categorias = new Set(produtos.map((p) => p.categoriaId)).size;
     const alertas = produtos.filter(
       (p) => p.quantidade === 0 || p.quantidade <= p.quantidadeMinima,
     ).length;
@@ -68,6 +71,10 @@ export default function HomeScreen() {
   };
 
   const inicial = user?.nome?.charAt(0).toUpperCase() ?? "U";
+
+  if (isLoading && produtos.length === 0) {
+    return <LoadingView mensagem="Carregando dashboard..." />;
+  }
 
   const renderHeader = () => (
     <View style={styles.container}>
@@ -197,9 +204,9 @@ export default function HomeScreen() {
       <View style={styles.productItem}>
         <View style={styles.productInfo}>
           <Text style={styles.productName}>{item.nome}</Text>
-          <Text style={styles.productCategory}>{item.categoria}</Text>
+          <Text style={styles.productCategory}>{item.categoria?.nome || "Sem categoria"}</Text>
           <View style={styles.productFooter}>
-            <Text style={styles.productPrice}>R$ {item.preco.toFixed(2)}</Text>
+            <Text style={styles.productPrice}>{formatarPreco(item.preco)}</Text>
             <View
               style={[styles.statusBadge, { backgroundColor: `${status}20` }]}
             >
@@ -212,7 +219,7 @@ export default function HomeScreen() {
         </View>
         <View style={styles.productStockBox}>
           <Text style={styles.stockNumber}>{item.quantidade}</Text>
-          <Text style={styles.stockLabel}>un</Text>
+          <Text style={styles.stockLabel}>{item.unidade || "un"}</Text>
         </View>
       </View>
     );
